@@ -1,0 +1,64 @@
+---
+title: "Codebook"
+author: "Rene Marves"
+date: "26 de febrero de 2017"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+## Codebook
+
+Codebook was generated on `r as.character(Sys.time())` during the same process that generated the dataset. See README.md or README.html for details on dataset creation.
+
+## Variable list and descriptions
+
+|Variable name   |Description                                          |
+|----------------|-----------------------------------------------------|
+|Subject         |ID the subjectwho performed the activity             |
+|                |for each window sample. Its range is from 1 to 30.   |
+|ActivityName    |Activity name                                        |
+
+
+The rest of the variables follow the format:
+
+(Measurement Dimension)(Mesurement subject)(Instrument)(Measurement Type)
+
+Where:
+
+|Item                   |Description                                   |
+|-----------------------|----------------------------------------------|
+|Measurement Dimension  |Can be: frequency or time                     |
+|Measurement subject    |Can be: Body, Gravity or BodyBody             |
+|Instrument             |Can be: Acceleromenter o Gyroscope            |
+|Measurment type        |Can be: Mean or Standard Deviation of a X, Y, |
+                        |or Z component, or a magnitude; or a jerk     |
+                        |measurement therof                            |
+
+Table: All other variables
+
+## Dataset structure
+
+```{r}
+str(dtTidy2)
+```
+
+## Show a few rows of the dataset
+
+```{r}
+dtTidy2
+```
+
+## Summary of variables
+
+```{r}
+summary(dtTidy2)
+```
+
+## Save to file
+
+Save data table objects to 2 tab-delimited text files called 
+**`r filename1`** and 
+**`r filename2`**

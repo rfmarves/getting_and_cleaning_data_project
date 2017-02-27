@@ -1,0 +1,307 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8"/>
+
+<title>Description</title>
+
+<script type="text/javascript">
+window.onload = function() {
+  var imgs = document.getElementsByTagName('img'), i, img;
+  for (i = 0; i < imgs.length; i++) {
+    img = imgs[i];
+    // center an image if it is the only element of its parent
+    if (img.parentElement.childElementCount === 1)
+      img.parentElement.style.textAlign = 'center';
+  }
+};
+</script>
+
+
+
+<!-- MathJax scripts -->
+<script type="text/javascript" src="https://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML">
+</script>
+
+
+<style type="text/css">
+body, td {
+   font-family: sans-serif;
+   background-color: white;
+   font-size: 13px;
+}
+
+body {
+  max-width: 800px;
+  margin: auto;
+  padding: 1em;
+  line-height: 20px;
+}
+
+tt, code, pre {
+   font-family: 'DejaVu Sans Mono', 'Droid Sans Mono', 'Lucida Console', Consolas, Monaco, monospace;
+}
+
+h1 {
+   font-size:2.2em;
+}
+
+h2 {
+   font-size:1.8em;
+}
+
+h3 {
+   font-size:1.4em;
+}
+
+h4 {
+   font-size:1.0em;
+}
+
+h5 {
+   font-size:0.9em;
+}
+
+h6 {
+   font-size:0.8em;
+}
+
+a:visited {
+   color: rgb(50%, 0%, 50%);
+}
+
+pre, img {
+  max-width: 100%;
+}
+pre {
+  overflow-x: auto;
+}
+pre code {
+   display: block; padding: 0.5em;
+}
+
+code {
+  font-size: 92%;
+  border: 1px solid #ccc;
+}
+
+code[class] {
+  background-color: #F8F8F8;
+}
+
+table, td, th {
+  border: none;
+}
+
+blockquote {
+   color:#666666;
+   margin:0;
+   padding-left: 1em;
+   border-left: 0.5em #EEE solid;
+}
+
+hr {
+   height: 0px;
+   border-bottom: none;
+   border-top-width: thin;
+   border-top-style: dotted;
+   border-top-color: #999999;
+}
+
+@media print {
+   * {
+      background: transparent !important;
+      color: black !important;
+      filter:none !important;
+      -ms-filter: none !important;
+   }
+
+   body {
+      font-size:12pt;
+      max-width:100%;
+   }
+
+   a, a:visited {
+      text-decoration: underline;
+   }
+
+   hr {
+      visibility: hidden;
+      page-break-before: always;
+   }
+
+   pre, blockquote {
+      padding-right: 1em;
+      page-break-inside: avoid;
+   }
+
+   tr, img {
+      page-break-inside: avoid;
+   }
+
+   img {
+      max-width: 100% !important;
+   }
+
+   @page :left {
+      margin: 15mm 20mm 15mm 10mm;
+   }
+
+   @page :right {
+      margin: 15mm 10mm 15mm 20mm;
+   }
+
+   p, h2, h3 {
+      orphans: 3; widows: 3;
+   }
+
+   h2, h3 {
+      page-break-after: avoid;
+   }
+}
+</style>
+
+
+
+</head>
+
+<body>
+<pre><code class="r setup, include=FALSE">knitr::opts_chunk$set(echo = TRUE)
+</code></pre>
+
+<h2>Description</h2>
+
+<p>The following explains how the project data is cleaned up, with step by step code.  The Codebook is found in the codebook.md file.</p>
+
+<p>The source data comes from:
+<a href="http://archive.ics.uci.edu/ml/datasets/Human+Activity+Recognition+Using+Smartphones">http://archive.ics.uci.edu/ml/datasets/Human+Activity+Recognition+Using+Smartphones</a></p>
+
+<p>The actual data package comes from:
+<a href="https://d396qusza40orc.cloudfront.net/getdata%2Fprojectfiles%2FUCI%20HAR%20Dataset.zip">https://d396qusza40orc.cloudfront.net/getdata%2Fprojectfiles%2FUCI%20HAR%20Dataset.zip</a></p>
+
+<h2>Setting up</h2>
+
+<p>Loads the required packages and identifies working directory:</p>
+
+<pre><code class="r load libraries, message=FALSE">library(dplyr)
+library(data.table)
+path &lt;- getwd()
+dataPath &lt;- file.path(path, &quot;UCI HAR Dataset&quot;)
+</code></pre>
+
+<h2>Reads source files</h2>
+
+<p>The Source files are now read into data tables, merging the Train and Test data simulteneously and cleaning the variables to save memory space. Column labels are also applied.</p>
+
+<p>First the Subject tables:</p>
+
+<pre><code class="r read subject tables">dtSubjectTrain &lt;- data.table(read.table(file.path(dataPath, &quot;train&quot;, &quot;subject_train.txt&quot;)))
+dtSubjectTest &lt;- data.table(read.table(file.path(dataPath, &quot;test&quot;, &quot;subject_test.txt&quot;)))
+dtSubject &lt;- rbind(dtSubjectTrain, dtSubjectTest)
+names(dtSubject) &lt;- c(&quot;Subject&quot;)
+rm(dtSubjectTrain,dtSubjectTest)
+</code></pre>
+
+<p>Then the Activity tables:</p>
+
+<pre><code class="r read activity tables">dtActivityTrain &lt;- data.table(read.table(file.path(dataPath, &quot;train&quot;,&quot;Y_train.txt&quot;)))
+dtActivityTest &lt;- data.table(read.table(file.path(dataPath, &quot;test&quot;,&quot;Y_test.txt&quot;)))
+dtActivity &lt;- rbind(dtActivityTrain,dtActivityTest)
+names(dtActivity) &lt;- c(&quot;ActivityNumber&quot;)
+rm(dtActivityTrain,dtActivityTest)
+</code></pre>
+
+<p>Now the tables with the data itself:</p>
+
+<pre><code class="r read data">dtTrain &lt;- data.table(read.table(file.path(dataPath, &quot;train&quot;,&quot;X_train.txt&quot;)))
+dtTest &lt;- data.table(read.table(file.path(dataPath, &quot;test&quot;,&quot;X_test.txt&quot;)))
+dt &lt;- rbind(dtTrain,dtTest)
+rm(dtTrain,dtTest)
+</code></pre>
+
+<p>Now reading the activity names:</p>
+
+<pre><code class="r read activity names table">dtActivityNames &lt;- data.table(read.table(file.path(dataPath, &quot;activity_labels.txt&quot;))) 
+names(dtActivityNames) &lt;- c(&quot;ActivityNumber&quot;,&quot;ActivityName&quot;)
+</code></pre>
+
+<p>Finally, get the Feature Names from the file and add a code column to reference to columnn names:</p>
+
+<pre><code class="r read feature numbers table">dtFeatureID &lt;- data.table(read.table(file.path(dataPath, &quot;features.txt&quot;))) 
+names(dtFeatureID) &lt;- c(&quot;ftNum&quot;,&quot;ftName&quot;)
+dtFeatureID$ftCode &lt;- paste(&quot;V&quot;, dtFeatureID$ftNum, sep = &quot;&quot;)
+</code></pre>
+
+<h2>Merging data</h2>
+
+<p>Now, all the previous data tables are merged into 1 and extra tables are removed:</p>
+
+<pre><code class="r merges tables">dt &lt;- cbind(dtSubject, dtActivity, dt)
+rm(dtSubject, dtActivity)
+</code></pre>
+
+<h2>Adding activity names</h2>
+
+<p>All activities need to be named, so an AcvtivityName column is added:</p>
+
+<pre><code class="r renaming activities">dt &lt;- merge(dt,dtActivityNames, by=&quot;ActivityNumber&quot;)
+</code></pre>
+
+<h2>Filtering data</h2>
+
+<p>Now, to leave only the columns that are average (mean) or standard deviation and also cleaning up column names:</p>
+
+<pre><code class="r filter data">targetCols &lt;- dtFeatureID[grepl(&quot;mean\\(\\)|std\\(\\)&quot;,ftName)]
+targetColsCode &lt;- c(&quot;Subject&quot;, &quot;ActivityName&quot;, targetCols[[&quot;ftCode&quot;]])
+dtTidy &lt;- dt[ , targetColsCode, with = FALSE]
+</code></pre>
+
+<h2>Fixing column names</h2>
+
+<p>Defines the initial tidy names for columns:</p>
+
+<pre><code class="r initial column names">TidyColNames &lt;- c(&quot;Subject&quot;, &quot;ActivityName&quot;, as.character(targetCols[[&quot;ftName&quot;]]))
+</code></pre>
+
+<p>Fixes the column names to be more understandable:</p>
+
+<pre><code class="r renaming columns">TidyColNames &lt;- gsub(&quot;^t&quot;, &quot;time&quot;, TidyColNames)
+TidyColNames &lt;- gsub(&quot;^f&quot;, &quot;frequency&quot;, TidyColNames)
+TidyColNames &lt;- gsub(&quot;Acc&quot;, &quot;Accelerometer&quot;, TidyColNames)
+TidyColNames &lt;- gsub(&quot;Gyro&quot;, &quot;Gyroscope&quot;, TidyColNames)
+TidyColNames &lt;- gsub(&quot;mean[(][)]&quot;, &quot;Mean&quot;,TidyColNames)
+TidyColNames &lt;- gsub(&quot;std[(][)]&quot;, &quot;Std&quot;,TidyColNames)
+TidyColNames &lt;- gsub(&quot;-&quot;, &quot;&quot;,TidyColNames)
+</code></pre>
+
+<p>Renames the columns in the tidy data table:</p>
+
+<pre><code class="r replaces column names">names(dtTidy) &lt;- TidyColNames
+</code></pre>
+
+<h2>Second data set</h2>
+
+<p>Creates a second, independent tidy data set with the average of each variable for each activity and each subject.</p>
+
+<pre><code class="r second data set">dtTidy2 &lt;- dtTidy %&gt;% group_by(Subject, ActivityName) %&gt;% summarise_each(funs(mean))
+</code></pre>
+
+<h2>Writing output file</h2>
+
+<p>Writes the output text files:</p>
+
+<pre><code class="r writes output">filename1 &lt;- &quot;tidy_project_data(large).txt&quot;
+filename2 &lt;- &quot;tidy_project_data(reduced).txt&quot;
+write.table(dtTidy, file.path(path, filename1), row.names=FALSE)
+write.table(dtTidy2, file.path(path, filename2), row.names=FALSE)
+</code></pre>
+
+<p>The Codebook is generated here:</p>
+
+<pre><code class="r generates codebook">knit(&quot;codebook.Rmd&quot;, output=&quot;codebook.md&quot;, encoding=&quot;ISO8859-1&quot;, quiet=TRUE)
+markdownToHTML(&quot;codebook.md&quot;, &quot;codebook.html&quot;)
+</code></pre>
+
+</body>
+
+</html>
